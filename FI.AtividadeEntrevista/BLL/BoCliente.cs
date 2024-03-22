@@ -1,8 +1,7 @@
-﻿using System;
+﻿using FI.AtividadeEntrevista.DAL.Beneficiarios;
+using FI.AtividadeEntrevista.DML;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FI.AtividadeEntrevista.BLL
 {
@@ -14,8 +13,16 @@ namespace FI.AtividadeEntrevista.BLL
         /// <param name="cliente">Objeto de cliente</param>
         public long Incluir(DML.Cliente cliente)
         {
-            DAL.DaoCliente cli = new DAL.DaoCliente();
-            return cli.Incluir(cliente);
+            DAL.Clientes.DaoCliente cli = new DAL.Clientes.DaoCliente();
+            var idCliente = cli.Incluir(cliente);
+            DAL.Beneficiarios.DaoBeneficiario ben = new DAL.Beneficiarios.DaoBeneficiario();
+            foreach (var beneficiario in cliente.Beneficiarios)
+            {
+                beneficiario.IdCliente = idCliente;
+                ben.Incluir(beneficiario);
+            }
+
+            return idCliente;
         }
 
         /// <summary>
@@ -24,8 +31,32 @@ namespace FI.AtividadeEntrevista.BLL
         /// <param name="cliente">Objeto de cliente</param>
         public void Alterar(DML.Cliente cliente)
         {
-            DAL.DaoCliente cli = new DAL.DaoCliente();
+            DAL.Clientes.DaoCliente cli = new DAL.Clientes.DaoCliente();
             cli.Alterar(cliente);
+
+            DAL.Beneficiarios.DaoBeneficiario ben = new DAL.Beneficiarios.DaoBeneficiario();
+
+            var idsBeneficiariosPorClienteNoBanco = ben.Listar(cliente.Id).Select(x => x.Id).ToHashSet();
+            var idsBeneficiarios = cliente.Beneficiarios.Select(x => x.Id).ToHashSet();
+            var idsBeneficiariosParaExcluir = idsBeneficiariosPorClienteNoBanco.Except(idsBeneficiarios);
+
+            foreach(var id in idsBeneficiariosParaExcluir)
+            {
+                ben.Excluir(id);
+            }
+
+            foreach (var beneficiario in cliente.Beneficiarios)
+            {
+                if (beneficiario.Id > 0)
+                {
+                    ben.Alterar(beneficiario.Id, beneficiario);
+                }
+                else
+                {
+                    beneficiario.IdCliente = cliente.Id;
+                    ben.Incluir(beneficiario);
+                }
+            }
         }
 
         /// <summary>
@@ -35,7 +66,7 @@ namespace FI.AtividadeEntrevista.BLL
         /// <returns></returns>
         public DML.Cliente Consultar(long id)
         {
-            DAL.DaoCliente cli = new DAL.DaoCliente();
+            DAL.Clientes.DaoCliente cli = new DAL.Clientes.DaoCliente();
             return cli.Consultar(id);
         }
 
@@ -46,17 +77,11 @@ namespace FI.AtividadeEntrevista.BLL
         /// <returns></returns>
         public void Excluir(long id)
         {
-            DAL.DaoCliente cli = new DAL.DaoCliente();
-            cli.Excluir(id);
-        }
+            DAL.Clientes.DaoCliente cli = new DAL.Clientes.DaoCliente();
 
-        /// <summary>
-        /// Lista os clientes
-        /// </summary>
-        public List<DML.Cliente> Listar()
-        {
-            DAL.DaoCliente cli = new DAL.DaoCliente();
-            return cli.Listar();
+            new DaoBeneficiario().ExcluirBeneficiariosDoCliente(id);
+
+            new DAL.Clientes.DaoCliente().Excluir(id);
         }
 
         /// <summary>
@@ -64,19 +89,8 @@ namespace FI.AtividadeEntrevista.BLL
         /// </summary>
         public List<DML.Cliente> Pesquisa(int iniciarEm, int quantidade, string campoOrdenacao, bool crescente, out int qtd)
         {
-            DAL.DaoCliente cli = new DAL.DaoCliente();
+            DAL.Clientes.DaoCliente cli = new DAL.Clientes.DaoCliente();
             return cli.Pesquisa(iniciarEm,  quantidade, campoOrdenacao, crescente, out qtd);
-        }
-
-        /// <summary>
-        /// VerificaExistencia
-        /// </summary>
-        /// <param name="CPF"></param>
-        /// <returns></returns>
-        public bool VerificarExistencia(string CPF)
-        {
-            DAL.DaoCliente cli = new DAL.DaoCliente();
-            return cli.VerificarExistencia(CPF);
         }
     }
 }

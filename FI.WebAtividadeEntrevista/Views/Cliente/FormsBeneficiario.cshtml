@@ -1,0 +1,18 @@
+﻿<div class="row">
+    <div class="col-md-5">
+        <div class="form-group">
+            <label for="Nome" class="col-form-label">Nome:</label>
+            <input type="text" class="form-control" id="Nome" name="Nome" required="required">
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="form-group">
+            <label for="CPF" class="col-form-label">CPF:</label>
+            <input type="text" class="form-control" id="CPF" name="CPF" required="required" placeholder="Ex.: 010.011.111-00" maxlength="14" oninput="formatarCPF(this)">
+            <span id="cpfValidationMessage" style="color: red;"></span>
+        </div>
+    </div>
+    <div class="col-md-2" style="margin-top: 30px">
+        <button type="submit" id="cadastroBeneficiarioButton" class="btn btn-sm btn-success">Salvar</button>
+    </div>
+</div>

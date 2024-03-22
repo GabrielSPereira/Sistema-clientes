@@ -38,6 +38,17 @@ namespace FI.AtividadeEntrevista.DAL
             {
                 comando.ExecuteNonQuery();
             }
+            catch (SqlException ex)
+            {
+                if (ex.Number == 2627) // 2627 é o código de erro para violação de chave única
+                {
+                    throw new CPFDuplicadoException();
+                }
+                else
+                {
+                    throw;
+                }
+            }
             finally
             {
                 conexao.Close();
@@ -62,6 +73,17 @@ namespace FI.AtividadeEntrevista.DAL
             try
             {               
                 adapter.Fill(ds);
+            }
+            catch (SqlException ex)
+            {
+                if (ex.Number == 2627) // 2627 é o código de erro para violação de chave única
+                {
+                    throw new CPFDuplicadoException();
+                }
+                else
+                {
+                    throw;
+                }
             }
             finally
             {

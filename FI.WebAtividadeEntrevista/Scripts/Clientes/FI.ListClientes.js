@@ -14,18 +14,23 @@ $(document).ready(function () {
             fields: {
                 Nome: {
                     title: 'Nome',
-                    width: '50%'
+                    width: '40%'
                 },
                 Email: {
                     title: 'Email',
-                    width: '35%'
+                    width: '40%'
                 },
-                Alterar: {
+                Botoes: {
                     title: '',
+                    sorting: false,
+                    width: '20%',
                     display: function (data) {
-                        return '<button onclick="window.location.href=\'' + urlAlteracao + '/' + data.record.Id + '\'" class="btn btn-primary btn-sm">Alterar</button>';
+                        return '<div class="btn-group" role="group" aria-label="Ações">' +
+                            '<button onclick="window.location.href=\'' + urlAlteracao + '/' + data.record.Id + '\'" class="btn btn-primary btn-sm" style="margin-right: 10px">Alterar</button>' +
+                            '<button onclick="confirmarExclusao(' + data.record.Id + ')" class="btn btn-danger btn-sm">Excluir</button>' +
+                            '</div>';
                     }
-                }
+                },
             }
         });
 
@@ -33,3 +38,18 @@ $(document).ready(function () {
     if (document.getElementById("gridClientes"))
         $('#gridClientes').jtable('load');
 })
+
+function confirmarExclusao(clienteId) {
+    if (confirm('Tem certeza que deseja excluir este cliente?')) {
+        $.ajax({
+            url: urlExcluir + '/' + clienteId,
+            type: 'DELETE',
+            success: function (response) {
+                $('#gridClientes').jtable('reload');
+            },
+            error: function (xhr, status, error) {
+                console.error('Erro ao excluir cliente:', error);
+            }
+        });
+    }
+}

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FI.AtividadeEntrevista.DML;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -11,13 +12,21 @@ namespace WebAtividadeEntrevista.Models
     /// </summary>
     public class ClienteModel
     {
+        private string cpf;
+        private string cep;
+
         public long Id { get; set; }
         
         /// <summary>
         /// CEP
         /// </summary>
         [Required]
-        public string CEP { get; set; }
+        [RegularExpression(@"^\d{5}-\d{3}$", ErrorMessage = "CEP inválido. Use o formato 00000-000")]
+        public string CEP
+        {
+            get { return cep; }
+            set { cep = FormatarSomenteNumeros(value); }
+        }
 
         /// <summary>
         /// Cidade
@@ -67,5 +76,29 @@ namespace WebAtividadeEntrevista.Models
         /// </summary>
         public string Telefone { get; set; }
 
-    }    
+        /// <summary>
+        /// CPF
+        /// </summary>
+        [Required]
+        public string CPF
+        {
+            get { return cpf; }
+            set { cpf = FormatarSomenteNumeros(value); }
+        }
+
+        /// <summary>
+        /// Lista de beneficiários
+        /// </summary>
+        public List<BeneficiarioModel> Beneficiarios { get; set; }
+
+        /// <summary>
+        /// Método para formatar string removendo caracteres especiais
+        /// </summary>
+        /// <returns>String formatada sem caracteres especiais</returns>
+        private string FormatarSomenteNumeros(string valor)
+        {
+            return new string(valor.Where(char.IsDigit).ToArray());
+        }
+
+    }
 }
